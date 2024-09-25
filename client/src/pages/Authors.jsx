@@ -1,10 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { name } from 'tar/types'
+import Avatar1 from '../images/Author1.jpg'
+import Avatar2 from '../images/Author2.jpg'
+import {Link} from 'react-router-dom'
+
+const authorsData=[
+  {id: 1, avatar: Avatar1, name: 'Jane Doe', posts: 3},
+  {id: 2, avatar: Avatar2, name: 'John Smith', posts: 3}
+]
 
 const Authors = () => {
+  const [authors, setAuthors] = useState(authorsData)
   return (
-    <div>
-      
-    </div>
+    <section className='authors'>
+      {authors.length>0 ? <div className='container authors_container'>
+        {
+          authors.map(({id, avatar, name, posts}) => {
+            return <Link key={id} to={`/posts/users/${id}`}>
+              <div className='author_avatar'>
+                <img src={avatar} alt={`Image of ${name}`}/>
+              </div>
+              <div className='author_info'>
+                <h4>{name}</h4>
+                <p>{posts}</p>
+              </div>
+            </Link>
+          })
+        }
+      </div> : <h2>No authors found</h2>}
+    </section>
   )
 }
 
