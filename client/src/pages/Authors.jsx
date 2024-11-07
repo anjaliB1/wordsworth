@@ -1,15 +1,13 @@
 import React, { useState } from 'react'
-import Avatar1 from '../images/Author1.jpg'
-import Avatar2 from '../images/Author2.jpg'
 import {Link} from 'react-router-dom'
 
 const authorsData=[
-  {id: 1, avatar: Avatar1, name: 'Jane Doe', posts: 3},
-  {id: 2, avatar: Avatar2, name: 'John Smith', posts: 1},
-  {id: 3, avatar: Avatar2, name: 'John Smith', posts: 1},
-  {id: 4, avatar: Avatar2, name: 'John Smith', posts: 1},
-  {id: 5, avatar: Avatar2, name: 'John Smith', posts: 1},
-  {id: 6, avatar: Avatar2, name: 'John Smith', posts: 1}
+  {id: 1, avatar: '', name: 'Jane Doe', posts: 3},
+  {id: 2, avatar: '', name: 'John Smith', posts: 1},
+  {id: 3, avatar: '', name: 'John Smith', posts: 1},
+  {id: 4, avatar: '', name: 'John Smith', posts: 1},
+  {id: 5, avatar: '', name: 'John Smith', posts: 1},
+  {id: 6, avatar: '', name: 'John Smith', posts: 1}
 ]
 
 const Authors = () => {
