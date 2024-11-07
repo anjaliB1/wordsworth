@@ -2,6 +2,9 @@ const HttpError = require('../models/errorModel')
 const User = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const fs = require('fs')
+const path = require('path')
+const {v4: uuidv4} = require('uuid');
 
 const registerUser = async (req, res, next) => {
     try{
@@ -75,17 +78,69 @@ const getAuthors = async (req, res, next) => {
 }
 
 const changeAvatar = async (req, res, next) => {
-    try {
+    try{
         if(!req.files.avatar){
             return next(new HttpError("Please choose an image", 422))
         }
-    } catch (error) {
+        const user = await User.findById(req.user.id)
+        if(user.avatar){
+            fs.unlink(path.join(__dirname, '..', 'uploads', user.avatar), (err)=>{
+                if(err){
+                    return next(new HttpError(err))
+                }
+            })
+        }
+        const {avatar} = req.files;
+        if(avatar.size>5000000){
+            return next(new HttpError("Profile picture too big. Should be less than 5mb"), 422)
+        }
+        let filename;
+        filename=avatar.name;
+        let splittedFilename = filename.split('.')
+        let newFilename=splittedFilename[0] + uuidv4() + '.' + splittedFilename[splittedFilename.length-1]
+        avatar.mv(path.join(__dirname, '..', 'uploads', newFilename), async(err)=>{
+            if(err){
+                return next(new HttpError(err))
+            }
+            const updatedAvatar = await User.findByIdAndUpdate(req.user.id, {avatar: newFilename}, {new: true})
+            if(!updatedAvatar){
+                return next(new HttpError("Avatar couldn't be changed.", 422))
+            }
+            res.status(200).json(updatedAvatar)
+        })
+    } catch(error){
         return next(new HttpError(error))
     }
 }
 
 const editUser = async (req, res, next) => {
-    res.json("Edit User Details")
+    try{
+        const {name, email, currentPassword, newPassword, confirmPassword, newConfirmPassword} = req.body;
+        if(!name || !email || !currentPassword || !newPassword){
+            return next(new HttpError("Fill in all fields", 422))
+        }
+        const user = await User.findById(req.user.id);
+        if(!user){
+            return next(new HttpError("User not found", 433))
+        }
+        const emailExist = await User.findOne({email});
+        if(emailExist && (emailExist._id != req.user.id)){
+            return next(new HttpError("Email already exist.", 422))
+        }
+        const validateUserPassword = await bcrypt.compare(currentPassword, user.password);
+        if(!validateUserPassword){
+            return next(new HttpError("Invalid current password", 422))
+        }
+        if(newPassword != newConfirmPassword){
+            return next(new HttpError("New passwords do not match.", 422))
+        }
+        const salt = await bcrypt.genSalt(10)
+        const hash = await bcrypt.hash(newPassword, salt);
+        const newInfo = await User.findByIdAndUpdate(req.user.id, {name, email, password: hash}, {new: true})
+        res.status(200).json(newInfo)
+    } catch(error){
+        return next(new HttpError(error))
+    }
 }
 
 module.exports = {registerUser, loginUser, getUser, changeAvatar, editUser, getAuthors}
