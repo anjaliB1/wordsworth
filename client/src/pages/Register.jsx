@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { name } from 'tar/types'
 import {Link} from 'react-router-dom'
 
 const Register = () => {

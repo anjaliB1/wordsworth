@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { name } from 'tar/types'
 import Avatar1 from '../images/Author1.jpg'
 import Avatar2 from '../images/Author2.jpg'
 import {Link} from 'react-router-dom'
